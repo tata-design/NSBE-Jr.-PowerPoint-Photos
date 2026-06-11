@@ -31,12 +31,12 @@ def add_background(slide, color: RGBColor) -> None:
     fill.fore_color.rgb = color
 
 
-def fit_image(image_path: Path, slide_width: int, slide_height: int, margin: int) -> tuple[int, int]:
+def fit_image(image_path: Path, slide_width: int, slide_height: int, margin_emu: int) -> tuple[int, int]:
     with Image.open(image_path) as image:
         width, height = image.size
 
-    max_width = slide_width - (margin * 2)
-    max_height = slide_height - (margin * 2)
+    max_width = slide_width - (margin_emu * 2)
+    max_height = slide_height - (margin_emu * 2)
     scale = min(max_width / width, max_height / height)
     return int(width * scale), int(height * scale)
 
@@ -45,8 +45,10 @@ def create_photo_slide(presentation: Presentation, image_path: Path) -> None:
     slide = presentation.slides.add_slide(presentation.slide_layouts[6])
     add_background(slide, RGBColor(13, 27, 42))
 
-    margin = Inches(0.35)
-    image_width, image_height = fit_image(image_path, presentation.slide_width, presentation.slide_height, margin)
+    margin_emu = int(Inches(0.35))
+    image_width, image_height = fit_image(
+        image_path, presentation.slide_width, presentation.slide_height, margin_emu
+    )
     left = int((presentation.slide_width - image_width) / 2)
     top = int((presentation.slide_height - image_height) / 2)
 
@@ -68,7 +70,10 @@ def create_closing_slide(presentation: Presentation) -> None:
     slide = presentation.slides.add_slide(presentation.slide_layouts[6])
     add_background(slide, RGBColor(13, 27, 42))
 
-    textbox = slide.shapes.add_textbox(Inches(1), Inches(2.2), Inches(11.33), Inches(2))
+    left = int(Inches(1))
+    top = int(Inches(2.2))
+    width = presentation.slide_width - (left * 2)
+    textbox = slide.shapes.add_textbox(left, top, width, int(Inches(2)))
     text_frame = textbox.text_frame
     paragraph = text_frame.paragraphs[0]
     paragraph.text = "Thank you for celebrating the year with us!"
